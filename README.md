@@ -52,9 +52,11 @@ It adds to your setup and never overwrites a file, so running it again is safe.
    Anything you put after these lines overrides the kit.
 3. Adds [git/delta.gitconfig](git/delta.gitconfig) to your global git config with
    `include.path`, so `git diff`, `git log -p` and lazygit use delta. Your name, email
-   and other git settings are not touched.
+   and other git settings are not touched. If your git config already sets a pager,
+   `interactive.diffFilter`, `merge.conflictStyle` or any `delta.*` option, the installer
+   leaves git alone and says so, since the include would override them.
 4. Copies the Tokyo Night configs from [config/](config) for each tool, **only where you
-   don't have that file yet**. The summary at the end lists what was `installed` and
+   don't have that file yet**. `XDG_CONFIG_HOME` is respected if you've set it. The summary at the end lists what was `installed` and
    what was `skipped (exists)`.
 
 `kit.zsh` sets `EDITOR` to Helix only if you haven't set an editor yourself.

@@ -62,11 +62,13 @@ assert_no_shell_errors() {
 # run_install <home> [install.sh args...]
 # Runs install.sh with /bin/bash (the macOS 3.2 one colleagues have), a clean environment
 # and <home> as both HOME and working directory. Sets OUT (output file) and STATUS.
+# TEST_PATH, TEST_SHELL, TEST_XDG_CONFIG_HOME and INSTALL_SH override the environment.
 run_install() {
   local home="$1"
   shift
   OUT="$home.out"
   (cd "$home" && env -i HOME="$home" PATH="${TEST_PATH:-$PATH}" SHELL="${TEST_SHELL:-/bin/zsh}" \
+    ${TEST_XDG_CONFIG_HOME:+"XDG_CONFIG_HOME=$TEST_XDG_CONFIG_HOME"} \
     GIT_CONFIG_NOSYSTEM=1 /bin/bash "${INSTALL_SH:-$REPO_DIR/install.sh}" "$@") >"$OUT" 2>&1
   # shellcheck disable=SC2034  # read by the tests
   STATUS=$?
@@ -77,4 +79,10 @@ assert_dir_empty() { [ -z "$(ls -A "$1")" ] || fail "expected $1 to be empty, ha
 # snapshot <dir>: checksums of every file under <dir>, plus symlinks, sorted
 snapshot() {
   (cd "$1" && { find . -type f -print0 | xargs -0 shasum; find . -type l; } | sort)
+}
+
+# copy_repo <dest>: a copy of the working tree (without .git) at <dest>
+copy_repo() {
+  mkdir -p "$1"
+  (cd "$REPO_DIR" && tar --exclude .git --exclude .superpowers -cf - .) | (cd "$1" && tar -xf -)
 }

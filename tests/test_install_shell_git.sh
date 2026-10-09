@@ -66,3 +66,37 @@ test_install_from_path_with_spaces() {
     > "$home.zsh.out" 2>&1 </dev/null
   assert_contains "$home.zsh.out" "ZSHRC-OK"
 }
+
+test_install_repairs_loader_and_include_after_clone_moves() {
+  local home old new; home=$(new_home); old="$TMP_ROOT/old/modern-terminal"; new="$TMP_ROOT/new/modern-terminal"
+  copy_repo "$old"
+  INSTALL_SH="$old/install.sh" run_install "$home" --skip-brew
+  mkdir -p "$TMP_ROOT/new"
+  mv "$old" "$new"
+  INSTALL_SH="$new/install.sh" run_install "$home" --skip-brew
+  assert_eq "$STATUS" "0"
+  assert_count "$home/.zshrc" "# modern-terminal" 1
+  assert_contains "$home/.zshrc" "source \"$new/zsh/kit.zsh\""
+  assert_not_contains "$home/.zshrc" "$old"
+  assert_contains "$OUT" "updated: loader line in ~/.zshrc"
+  assert_eq "$(git_includes "$home")" "$new/git/delta.gitconfig"
+  assert_contains "$OUT" "removed: stale git include $old/git/delta.gitconfig"
+}
+
+test_install_leaves_git_alone_when_user_has_own_pager() {
+  local home; home=$(new_home)
+  env -i HOME="$home" PATH="$PATH" git config --global core.pager "less -FRX"
+  run_install "$home" --skip-brew
+  assert_eq "$STATUS" "0"
+  assert_eq "$(git_includes "$home")" ""
+  assert_eq "$(env -i HOME="$home" PATH="$PATH" git config core.pager)" "less -FRX"
+  assert_contains "$OUT" "skipped: your git config already sets core.pager"
+}
+
+test_install_leaves_git_alone_when_user_has_delta_settings() {
+  local home; home=$(new_home)
+  env -i HOME="$home" PATH="$PATH" git config --global delta.side-by-side false
+  run_install "$home" --skip-brew
+  assert_eq "$(git_includes "$home")" ""
+  assert_contains "$OUT" "skipped: your git config already sets delta.side-by-side"
+}

@@ -6,6 +6,8 @@ set -euo pipefail
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKIP_BREW=0
 FAILED=0
+# Where bat, helix, micro, btop and Ghostty look for their config.
+CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}"
 
 usage() { echo "Usage: ./install.sh [--skip-brew]"; }
 
@@ -58,9 +60,24 @@ install_packages() {
 MARKER="# modern-terminal"
 
 add_loader() {
-  local zshrc="$HOME/.zshrc"
+  local zshrc="$HOME/.zshrc" line="source \"$REPO_DIR/zsh/kit.zsh\"" updated
   if [ -f "$zshrc" ] && grep -qF "$MARKER" "$zshrc"; then
-    say "skipped: ~/.zshrc already loads modern-terminal"
+    if grep -qxF "$line" "$zshrc"; then
+      say "skipped: ~/.zshrc already loads modern-terminal"
+      return
+    fi
+    # The clone has moved: point the kit's own line (right after the marker) here.
+    # Write back with cat so a symlinked ~/.zshrc stays a symlink.
+    updated=$(awk -v marker="$MARKER" -v line="$line" '
+      prev == marker && /^source ".*\/zsh\/kit\.zsh"$/ { print line; prev = ""; next }
+      { print; prev = $0 }' "$zshrc")
+    printf '%s\n' "$updated" > "$zshrc"
+    if grep -qxF "$line" "$zshrc"; then
+      say "updated: loader line in ~/.zshrc"
+    else
+      say "FAILED: ~/.zshrc has the '$MARKER' line but no kit line after it. Fix it by hand." >&2
+      FAILED=1
+    fi
     return
   fi
   # Start on a fresh line even if the file doesn't end with a newline.
@@ -73,10 +90,30 @@ add_loader() {
 }
 
 add_git_include() {
-  local include="$REPO_DIR/git/delta.gitconfig" current
+  local include="$REPO_DIR/git/delta.gitconfig" current path own
   current=$(git config --global --get-all include.path || true)
+
+  # Drop includes left behind by a clone that has since moved.
+  while IFS= read -r path; do
+    case "$path" in
+      */git/delta.gitconfig)
+        if [ "$path" != "$include" ] && [ ! -e "$path" ]; then
+          git config --global --fixed-value --unset include.path "$path"
+          say "removed: stale git include $path"
+        fi ;;
+    esac
+  done <<<"$current"
+
   if grep -qxF "$include" <<<"$current"; then
     say "skipped: git already includes delta.gitconfig"
+    return
+  fi
+  # The include comes last in the file, so it would override these. Leave git alone instead.
+  # (--global without --includes reads only the user's own file.)
+  own=$(git config --global --name-only --get-regexp \
+    '^(core\.pager|interactive\.difffilter|merge\.conflictstyle|delta\..*)$' || true)
+  if [ -n "$own" ]; then
+    say "skipped: your git config already sets $(head -n 1 <<<"$own"), so delta.gitconfig was not added (see README)"
     return
   fi
   git config --global --add include.path "$include"
@@ -102,25 +139,44 @@ copy_if_missing() {
   fi
 }
 
-copy_configs() {
-  local config="$HOME/.config"
-  local app_support="$HOME/Library/Application Support"
-  local ghostty_alt="$app_support/com.mitchellh.ghostty/config"
+# ghostty_config: prints the first existing Ghostty config file, if any
+ghostty_config() {
+  local dir file
+  for dir in "$CONFIG_DIR/ghostty" "$HOME/Library/Application Support/com.mitchellh.ghostty"; do
+    for file in config config.ghostty; do
+      if [ -e "$dir/$file" ]; then
+        printf '%s' "$dir/$file"
+        return
+      fi
+    done
+  done
+}
 
-  # Ghostty also reads its config from Application Support; either location counts.
-  if [ -e "$ghostty_alt" ]; then
-    say "skipped (exists): $(pretty "$ghostty_alt")"
+copy_configs() {
+  local config="$CONFIG_DIR" existing lazygit_dir
+  # lazygit only uses XDG_CONFIG_HOME when it is set; otherwise Application Support.
+  if [ -n "${XDG_CONFIG_HOME:-}" ]; then
+    lazygit_dir="$XDG_CONFIG_HOME/lazygit"
+  else
+    lazygit_dir="$HOME/Library/Application Support/lazygit"
+  fi
+
+  # Ghostty reads config or config.ghostty from two directories; any of them counts.
+  existing=$(ghostty_config)
+  if [ -n "$existing" ]; then
+    say "skipped (exists): $(pretty "$existing")"
   else
     copy_if_missing config/ghostty/config "$config/ghostty/config"
   fi
-  copy_if_missing config/starship.toml "$config/starship.toml"
+  # starship reads ~/.config/starship.toml whatever XDG_CONFIG_HOME says.
+  copy_if_missing config/starship.toml "$HOME/.config/starship.toml"
   copy_if_missing config/bat/config "$config/bat/config"
   copy_if_missing config/bat/themes/tokyonight_storm.tmTheme "$config/bat/themes/tokyonight_storm.tmTheme"
   copy_if_missing config/helix/config.toml "$config/helix/config.toml"
   copy_if_missing config/micro/settings.json "$config/micro/settings.json"
   copy_if_missing config/micro/colorschemes/tokyonight.micro "$config/micro/colorschemes/tokyonight.micro"
   copy_if_missing config/btop/btop.conf "$config/btop/btop.conf"
-  copy_if_missing config/lazygit/config.yml "$app_support/lazygit/config.yml"
+  copy_if_missing config/lazygit/config.yml "$lazygit_dir/config.yml"
   copy_if_missing config/glow/tokyonight-storm.json "$HOME/Library/Preferences/glow/tokyonight-storm.json"
   copy_if_missing config/glow/glow.yml "$HOME/Library/Preferences/glow/glow.yml"
 }

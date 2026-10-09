@@ -82,3 +82,31 @@ test_install_registers_bat_theme() {
   env -i HOME="$home" PATH="$PATH" bat --list-themes --color=never > "$home.themes" 2>&1
   grep -qx "tokyonight_storm" "$home.themes" || fail "tokyonight_storm not in bat --list-themes"
 }
+
+test_install_respects_ghostty_config_dot_ghostty() {
+  local home dir; home=$(new_home)
+  for dir in ".config/ghostty" "Library/Application Support/com.mitchellh.ghostty"; do
+    rm -rf "$home/.config" "$home/Library"
+    mkdir -p "$home/$dir"
+    echo mine > "$home/$dir/config.ghostty"
+    run_install "$home" --skip-brew
+    assert_no_file "$home/.config/ghostty/config"
+    assert_contains "$OUT" "skipped (exists): ~/$dir/config.ghostty"
+  done
+}
+
+test_install_uses_xdg_config_home() {
+  local home xdg; home=$(new_home); xdg="$home/xdg"
+  TEST_XDG_CONFIG_HOME="$xdg" run_install "$home" --skip-brew
+  assert_eq "$STATUS" "0"
+  for f in ghostty/config bat/config bat/themes/tokyonight_storm.tmTheme helix/config.toml \
+    micro/settings.json micro/colorschemes/tokyonight.micro btop/btop.conf lazygit/config.yml; do
+    assert_file "$xdg/$f"
+  done
+  # starship and glow don't use XDG_CONFIG_HOME on macOS.
+  assert_file "$home/.config/starship.toml"
+  assert_file "$home/Library/Preferences/glow/glow.yml"
+  assert_no_file "$home/Library/Application Support/lazygit/config.yml"
+  env -i HOME="$home" XDG_CONFIG_HOME="$xdg" PATH="$PATH" bat --list-themes --color=never > "$home.themes" 2>&1
+  grep -qx "tokyonight_storm" "$home.themes" || fail "tokyonight_storm not visible to bat with XDG_CONFIG_HOME"
+}
