@@ -20,3 +20,20 @@ assert_count() {
 }
 
 new_home() { mktemp -d "$TMP_ROOT/home.XXXXXX"; }
+
+# One line per config file: <repo path>|<destination relative to $HOME>
+expected_config_files() {
+  cat <<'LIST'
+config/ghostty/config|.config/ghostty/config
+config/starship.toml|.config/starship.toml
+config/bat/config|.config/bat/config
+config/bat/themes/tokyonight_storm.tmTheme|.config/bat/themes/tokyonight_storm.tmTheme
+config/helix/config.toml|.config/helix/config.toml
+config/micro/settings.json|.config/micro/settings.json
+config/micro/colorschemes/tokyonight.micro|.config/micro/colorschemes/tokyonight.micro
+config/btop/btop.conf|.config/btop/btop.conf
+config/lazygit/config.yml|Library/Application Support/lazygit/config.yml
+config/glow/tokyonight-storm.json|Library/Preferences/glow/tokyonight-storm.json
+config/glow/glow.yml|Library/Preferences/glow/glow.yml
+LIST
+}
