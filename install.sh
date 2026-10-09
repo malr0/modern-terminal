@@ -83,6 +83,65 @@ add_git_include() {
   say "installed: git include for delta.gitconfig"
 }
 
+# copy_if_missing <repo path> <destination>
+# Copies a file unless something already exists at the destination.
+# Every copy replaces __HOME__ with your home directory (used by glow.yml).
+copy_if_missing() {
+  local src="$REPO_DIR/$1" dest="$2" home_escaped
+  if [ -e "$dest" ]; then
+    say "skipped (exists): $(pretty "$dest")"
+    return
+  fi
+  home_escaped=$(printf '%s' "$HOME" | sed 's/[&|\\]/\\&/g')
+  if mkdir -p "$(dirname "$dest")" 2>/dev/null &&
+     sed "s|__HOME__|$home_escaped|g" "$src" > "$dest" 2>/dev/null; then
+    say "installed: $(pretty "$dest")"
+  else
+    say "FAILED: could not write $(pretty "$dest")" >&2
+    FAILED=1
+  fi
+}
+
+copy_configs() {
+  local config="$HOME/.config"
+  local app_support="$HOME/Library/Application Support"
+  local ghostty_alt="$app_support/com.mitchellh.ghostty/config"
+
+  # Ghostty also reads its config from Application Support; either location counts.
+  if [ -e "$ghostty_alt" ]; then
+    say "skipped (exists): $(pretty "$ghostty_alt")"
+  else
+    copy_if_missing config/ghostty/config "$config/ghostty/config"
+  fi
+  copy_if_missing config/starship.toml "$config/starship.toml"
+  copy_if_missing config/bat/config "$config/bat/config"
+  copy_if_missing config/bat/themes/tokyonight_storm.tmTheme "$config/bat/themes/tokyonight_storm.tmTheme"
+  copy_if_missing config/helix/config.toml "$config/helix/config.toml"
+  copy_if_missing config/micro/settings.json "$config/micro/settings.json"
+  copy_if_missing config/micro/colorschemes/tokyonight.micro "$config/micro/colorschemes/tokyonight.micro"
+  copy_if_missing config/btop/btop.conf "$config/btop/btop.conf"
+  copy_if_missing config/lazygit/config.yml "$app_support/lazygit/config.yml"
+  copy_if_missing config/glow/tokyonight-storm.json "$HOME/Library/Preferences/glow/tokyonight-storm.json"
+  copy_if_missing config/glow/glow.yml "$HOME/Library/Preferences/glow/glow.yml"
+}
+
+# bat (and delta, which uses bat's themes) only sees new theme files after a cache rebuild.
+build_bat_cache() {
+  command -v bat >/dev/null 2>&1 || return 0
+  # Capture first: with pipefail, `bat | grep -q` can fail when grep exits early.
+  local themes
+  themes=$(bat --list-themes --color=never 2>/dev/null || true)
+  if grep -qx "tokyonight_storm" <<<"$themes"; then
+    return 0
+  fi
+  if bat cache --build >/dev/null 2>&1; then
+    say "installed: bat theme cache"
+  else
+    say "FAILED: bat cache --build" >&2
+    FAILED=1
+  fi
+}
+
 main() {
   preflight
   install_packages
@@ -90,7 +149,10 @@ main() {
   say "Shell and git:"
   add_loader
   add_git_include
-  # -- config file steps (Task 6) --
+  say ""
+  say "Config files (only added where you don't have one):"
+  copy_configs
+  build_bat_cache
   say ""
   if [ "$FAILED" -ne 0 ]; then
     say "Finished with errors: see the FAILED lines above." >&2

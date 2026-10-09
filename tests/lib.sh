@@ -71,3 +71,8 @@ run_install() {
 }
 
 assert_dir_empty() { [ -z "$(ls -A "$1")" ] || fail "expected $1 to be empty, has: $(ls -A "$1")"; }
+
+# snapshot <dir>: checksums of every file under <dir>, plus symlinks, sorted
+snapshot() {
+  (cd "$1" && { find . -type f -print0 | xargs -0 shasum; find . -type l; } | sort)
+}
