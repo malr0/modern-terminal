@@ -56,3 +56,17 @@ assert_no_shell_errors() {
     assert_not_contains "$1" "$pattern"
   done
 }
+
+# run_install <home> [install.sh args...]
+# Runs install.sh with /bin/bash (the macOS 3.2 one colleagues have), a clean environment
+# and <home> as both HOME and working directory. Sets OUT (output file) and STATUS.
+run_install() {
+  local home="$1"
+  shift
+  OUT="$home.out"
+  (cd "$home" && env -i HOME="$home" PATH="${TEST_PATH:-$PATH}" SHELL="${TEST_SHELL:-/bin/zsh}" \
+    GIT_CONFIG_NOSYSTEM=1 /bin/bash "${INSTALL_SH:-$REPO_DIR/install.sh}" "$@") >"$OUT" 2>&1
+  STATUS=$?
+}
+
+assert_dir_empty() { [ -z "$(ls -A "$1")" ] || fail "expected $1 to be empty, has: $(ls -A "$1")"; }
