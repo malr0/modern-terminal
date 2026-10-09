@@ -37,3 +37,22 @@ config/glow/tokyonight-storm.json|Library/Preferences/glow/tokyonight-storm.json
 config/glow/glow.yml|Library/Preferences/glow/glow.yml
 LIST
 }
+
+# run_kit <home> <zsh commands> [VAR=value...]
+# Sources zsh/kit.zsh in an interactive zsh (no rc files) on a pseudo-terminal,
+# then runs <zsh commands>. Extra VAR=value arguments override the environment.
+run_kit() {
+  local home="$1" cmds="$2"
+  shift 2
+  OUT="$home.kit.out"
+  script -q "$OUT" env -i HOME="$home" PATH="$PATH" TERM=xterm-256color "$@" \
+    zsh -f -i -c "source \"$REPO_DIR/zsh/kit.zsh\"; $cmds; print -r -- KIT-DONE" \
+    </dev/null >/dev/null 2>&1
+}
+
+assert_no_shell_errors() {
+  local pattern
+  for pattern in "not found" "no such file" "can't" "parse error" "bad pattern"; do
+    assert_not_contains "$1" "$pattern"
+  done
+}
