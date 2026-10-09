@@ -78,7 +78,10 @@ loading twice. In Oh My Zsh, set `ZSH_THEME=""` so starship is the only prompt, 
 4. Remove tools you don't want with `brew uninstall <name>`.
 5. Delete the `~/modern-terminal` folder.
 
-## Credits
+## Credits and licence
+
+The kit is released under the [MIT licence](LICENSE).
 
 The Tokyo Night colours come from [tokyonight.nvim](https://github.com/folke/tokyonight.nvim)
-by Folke Lemaitre (Apache-2.0). The bat theme is taken from that project.
+by Folke Lemaitre. The bat theme is taken from that project and is covered by its
+[Apache-2.0 licence](config/bat/themes/LICENSE-tokyonight.txt).
