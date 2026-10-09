@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # install.sh: copying config files.
 
 test_install_copies_all_configs_into_fresh_home() {

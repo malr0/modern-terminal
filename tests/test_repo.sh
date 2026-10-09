@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # Repo-wide checks: Brewfile contents and no personal data in shipped files.
 
 brewfile_entries() {

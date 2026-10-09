@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # Docs: local links resolve, agents.md has no install commands.
 
 test_docs_local_links_resolve() {

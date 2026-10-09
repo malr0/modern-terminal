@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # install.sh: argument handling and preflight checks.
 
 test_install_rejects_non_macos() {

@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # Shared test helpers. Sourced by tests/run.sh.
 # Assertions call `fail`, which exits the test's subshell. Don't rely on `set -e`
 # inside tests: bash ignores it in the `if ( ... )` the runner uses.
@@ -67,6 +68,7 @@ run_install() {
   OUT="$home.out"
   (cd "$home" && env -i HOME="$home" PATH="${TEST_PATH:-$PATH}" SHELL="${TEST_SHELL:-/bin/zsh}" \
     GIT_CONFIG_NOSYSTEM=1 /bin/bash "${INSTALL_SH:-$REPO_DIR/install.sh}" "$@") >"$OUT" 2>&1
+  # shellcheck disable=SC2034  # read by the tests
   STATUS=$?
 }
 

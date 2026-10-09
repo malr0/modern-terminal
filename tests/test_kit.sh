@@ -1,3 +1,7 @@
+# shellcheck shell=bash
+# The single-quoted commands below are zsh code, expanded by zsh rather than bash.
+# shellcheck disable=SC2016
+
 # zsh/kit.zsh in a real interactive zsh.
 
 test_kit_loads_cleanly_and_defines_commands() {

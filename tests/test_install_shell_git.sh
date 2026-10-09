@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # install.sh: the ~/.zshrc loader line and the git include.
 
 git_includes() { env -i HOME="$1" GIT_CONFIG_NOSYSTEM=1 PATH="$PATH" git config --global --get-all include.path; }
@@ -38,7 +39,7 @@ test_install_keeps_symlinked_zshrc() {
   echo 'export FOO=1' > "$home/dotfiles/zshrc"
   ln -s "$home/dotfiles/zshrc" "$home/.zshrc"
   run_install "$home" --skip-brew
-  [ -L "$home/.zshrc" ] || fail "~/.zshrc is no longer a symlink"
+  [ -L "$home/.zshrc" ] || fail "$home/.zshrc is no longer a symlink"
   assert_contains "$home/dotfiles/zshrc" "# modern-terminal"
 }
 

@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # The config files shipped in the repo.
 
 test_all_config_files_present() {
