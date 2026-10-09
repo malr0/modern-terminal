@@ -55,10 +55,41 @@ install_packages() {
   fi
 }
 
+MARKER="# modern-terminal"
+
+add_loader() {
+  local zshrc="$HOME/.zshrc"
+  if [ -f "$zshrc" ] && grep -qF "$MARKER" "$zshrc"; then
+    say "skipped: ~/.zshrc already loads modern-terminal"
+    return
+  fi
+  # Start on a fresh line even if the file doesn't end with a newline.
+  if [ -s "$zshrc" ] && [ -n "$(tail -c 1 "$zshrc")" ]; then
+    printf '\n' >> "$zshrc"
+  fi
+  # >> writes through a symlink, so a ~/.zshrc managed elsewhere stays a link.
+  printf '%s\nsource "%s/zsh/kit.zsh"\n' "$MARKER" "$REPO_DIR" >> "$zshrc"
+  say "installed: loader line in ~/.zshrc"
+}
+
+add_git_include() {
+  local include="$REPO_DIR/git/delta.gitconfig" current
+  current=$(git config --global --get-all include.path || true)
+  if grep -qxF "$include" <<<"$current"; then
+    say "skipped: git already includes delta.gitconfig"
+    return
+  fi
+  git config --global --add include.path "$include"
+  say "installed: git include for delta.gitconfig"
+}
+
 main() {
   preflight
   install_packages
-  # -- shell and git steps (Task 5) --
+  say ""
+  say "Shell and git:"
+  add_loader
+  add_git_include
   # -- config file steps (Task 6) --
   say ""
   if [ "$FAILED" -ne 0 ]; then

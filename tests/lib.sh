@@ -2,7 +2,8 @@
 # Assertions call `fail`, which exits the test's subshell. Don't rely on `set -e`
 # inside tests: bash ignores it in the `if ( ... )` the runner uses.
 
-TMP_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/mt-tests.XXXXXX")"
+# cd + pwd normalises the path (TMPDIR ends in "/"), the same way install.sh resolves REPO_DIR.
+TMP_ROOT="$(cd "$(mktemp -d "${TMPDIR:-/tmp}/mt-tests.XXXXXX")" && pwd)"
 # chmod first: some tests make directories read-only.
 trap 'chmod -R u+w "$TMP_ROOT" 2>/dev/null; rm -rf "$TMP_ROOT"' EXIT
 
