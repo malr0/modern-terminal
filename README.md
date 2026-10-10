@@ -5,7 +5,7 @@ fast modern command-line tools, and one Tokyo Night Storm theme across all of th
 
 ![The starship prompt and an eza listing with icons and git status](docs/screenshots/ll.png)
 
-![A side-by-side git diff in delta with syntax highlighting](docs/screenshots/delta.png)
+<a href="docs/screenshots/delta.png"><img src="docs/screenshots/delta.png" width="559" alt="A side-by-side git diff in delta with syntax highlighting"></a>
 
 ## What you get
 
