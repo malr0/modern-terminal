@@ -3,6 +3,10 @@
 A starter kit for a modern macOS terminal: Ghostty, zsh with starship, fzf and zoxide,
 fast modern command-line tools, and one Tokyo Night Storm theme across all of them.
 
+![The starship prompt and an eza listing with icons and git status](docs/screenshots/ll.png)
+
+![A side-by-side git diff in delta with syntax highlighting](docs/screenshots/delta.png)
+
 ## What you get
 
 | Area | Tools |
