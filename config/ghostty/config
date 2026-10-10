@@ -1,0 +1,46 @@
+# modern-terminal: Ghostty config (installed to ~/.config/ghostty/config)
+# Reload after editing with Cmd+Shift+, (or quit & reopen Ghostty).
+# See all options:  ghostty +show-config --default --docs | less
+
+# --- Theme ---
+theme = TokyoNight Storm
+
+# --- Font ---
+font-family = JetBrainsMono Nerd Font Mono
+font-size = 16
+# A touch of breathing room between lines (1.0 = default).
+adjust-cell-height = 8%
+
+# --- Window ---
+# Initial size in cells (columns x rows).
+window-width = 180
+window-height = 60
+window-padding-x = 10
+window-padding-y = 8
+# Inherit the working directory of the current tab/split for new ones.
+window-inherit-working-directory = true
+macos-titlebar-style = transparent
+background-opacity = 0.97
+background-blur = 20
+
+# --- Cursor ---
+cursor-style = block
+cursor-style-blink = false
+shell-integration-features = no-cursor,sudo,title
+
+# --- Scrollback / mouse ---
+# scrollback-limit is in bytes; ~10 MB of scrollback.
+scrollback-limit = 10000000
+mouse-hide-while-typing = true
+copy-on-select = clipboard
+
+# --- Keyboard ---
+# Treat the LEFT Option key as Alt/Meta (so Alt-C, Alt-., etc. reach the shell).
+# Right Option still types special characters (accents, etc.).
+macos-option-as-alt = left
+
+# --- Quality of life ---
+# Confirm before closing a surface/quitting *if a command is running*.
+# (Use `always` instead to also confirm at an idle shell prompt.)
+confirm-close-surface = true
+clipboard-paste-protection = true
