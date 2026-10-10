@@ -5,7 +5,17 @@ fast modern command-line tools, and one Tokyo Night Storm theme across all of th
 
 ![The starship prompt and an eza listing with icons and git status](docs/screenshots/ll.png)
 
+**Prompt and `ll`.** The default zsh prompt is a plain `user@host ~ %`. The starship
+prompt shows the current folder, the git branch and its status, and the time.
+`ll` replaces `ls -l`: folders first, an icon for each file type, short sizes such as
+`7.6k`, and a git column that marks new and modified files.
+
 <a href="docs/screenshots/delta.png"><img src="docs/screenshots/delta.png" width="559" alt="A side-by-side git diff in delta with syntax highlighting"></a>
+
+**`git diff` with delta.** Plain `git diff` prints a single column of whole lines in red
+and green. With delta you see the old and new file side by side, with line numbers,
+syntax highlighting and the changed words marked inside each line. Click the image to
+see it full size.
 
 ## What you get
 
