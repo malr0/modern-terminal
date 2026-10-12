@@ -26,3 +26,10 @@ test_delta_gitconfig_is_valid_without_identity() {
   assert_not_contains "$TMP_ROOT/delta.list" "user."
   assert_not_contains "$TMP_ROOT/delta.list" "credential."
 }
+
+test_glow_theme_draws_task_checkboxes() {
+  # Without these, glow shows task list items with no checkbox and no bullet.
+  local task
+  task=$(jq -c '.task | {ticked, unticked}' "$REPO_DIR/config/glow/tokyonight-storm.json")
+  assert_eq "$task" '{"ticked":"[✓] ","unticked":"[ ] "}'
+}
