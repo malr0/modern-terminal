@@ -91,14 +91,15 @@ from your `plugins=(...)` list so they don't load twice.
 
 ## Uninstall
 
-1. Delete the two lines starting with `# modern-terminal` from `~/.zshrc`.
-2. Remove the git include:
+1. Delete the `# modern-terminal` line from `~/.zshrc`, and the
+   `source ".../zsh/kit.zsh"` line below it.
+2. Remove the git include, wherever you cloned the kit:
    ```sh
-   git config --global --fixed-value --unset include.path "$HOME/modern-terminal/git/delta.gitconfig"
+   git config --global --unset-all include.path '/git/delta\.gitconfig$'
    ```
 3. Delete any copied config files you don't want. The install summary lists them.
 4. Remove tools you don't want with `brew uninstall <name>`.
-5. Delete the `~/modern-terminal` folder.
+5. Delete the cloned folder (`~/modern-terminal` if you followed the install steps).
 
 ## Credits and licence
 

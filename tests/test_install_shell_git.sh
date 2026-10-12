@@ -100,3 +100,20 @@ test_install_leaves_git_alone_when_user_has_delta_settings() {
   assert_eq "$(git_includes "$home")" ""
   assert_contains "$OUT" "skipped: your git config already sets delta.side-by-side"
 }
+
+# readme_uninstall_git_command: the git command from the README's Uninstall section
+readme_uninstall_git_command() {
+  sed -n '/^## Uninstall/,/^## /p' "$REPO_DIR/README.md" | sed -n 's/^ *\(git config .*\)$/\1/p'
+}
+
+test_readme_uninstall_command_removes_include_from_any_clone_folder() {
+  local home clone cmd; home=$(new_home); clone="$TMP_ROOT/somewhere else/my-kit"
+  copy_repo "$clone"
+  INSTALL_SH="$clone/install.sh" run_install "$home" --skip-brew
+  env -i HOME="$home" PATH="$PATH" git config --global --add include.path "$home/other.gitconfig"
+  cmd=$(readme_uninstall_git_command)
+  [ -n "$cmd" ] || fail "no git config command in the README's Uninstall section"
+  env -i HOME="$home" GIT_CONFIG_NOSYSTEM=1 PATH="$PATH" bash -c "$cmd" \
+    || fail "README uninstall command failed: $cmd"
+  assert_eq "$(git_includes "$home")" "$home/other.gitconfig"
+}
