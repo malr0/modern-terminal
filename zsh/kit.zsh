@@ -19,7 +19,9 @@ fi
 
 # --- fzf: Ctrl+R history, Ctrl+T files, Alt+C directories (TokyoNight Storm + fd) ---
 if (( $+commands[fzf] )); then
-  source <(fzf --zsh)
+  # fzf before 0.48 has no --zsh: skip the key bindings rather than print an error.
+  _mt_fzf_init="$(fzf --zsh 2>/dev/null)" && eval "$_mt_fzf_init"
+  unset _mt_fzf_init
   if (( $+commands[fd] )); then
     export FZF_DEFAULT_COMMAND='fd --hidden --strip-cwd-prefix --exclude .git'
     export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"

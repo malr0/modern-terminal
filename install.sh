@@ -45,13 +45,37 @@ preflight() {
   esac
 }
 
+# find_installed_casks: sets SKIP_CASKS to the casks whose app or font is already there,
+# for example from a download. brew can't install a cask over them, and that error
+# would stop brew bundle.
+SKIP_CASKS=""
+find_installed_casks() {
+  local dir font
+  for dir in /Applications "$HOME/Applications"; do
+    if [ -e "$dir/Ghostty.app" ]; then
+      say "skipped (already installed): Ghostty"
+      SKIP_CASKS="ghostty"
+      break
+    fi
+  done
+  for font in "$HOME"/Library/Fonts/JetBrainsMonoNerdFont*.ttf /Library/Fonts/JetBrainsMonoNerdFont*.ttf; do
+    if [ -e "$font" ]; then
+      say "skipped (already installed): JetBrains Mono Nerd Font"
+      SKIP_CASKS="${SKIP_CASKS:+$SKIP_CASKS }font-jetbrains-mono-nerd-font"
+      break
+    fi
+  done
+}
+
 install_packages() {
   if [ "$SKIP_BREW" -eq 1 ]; then
     say "Skipping Homebrew packages (--skip-brew)."
     return
   fi
   say "Installing Homebrew packages..."
-  if ! brew bundle --file "$REPO_DIR/Brewfile"; then
+  find_installed_casks
+  # --no-upgrade: tools you already have stay at their current version.
+  if ! HOMEBREW_BUNDLE_CASK_SKIP="$SKIP_CASKS" brew bundle --no-upgrade --file "$REPO_DIR/Brewfile"; then
     say "brew bundle failed, so no config was changed. Fix the error above and run ./install.sh again." >&2
     exit 1
   fi
