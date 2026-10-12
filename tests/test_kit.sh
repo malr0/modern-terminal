@@ -103,7 +103,7 @@ fake_pickers() {
   local name
   mkdir -p "$1"
   printf '#!/bin/sh\n[ "$1" = --zsh ] && exit 2\nprintf "%%s\\n" "$FAKE_PICK"\n' > "$1/fzf"
-  for name in hx nvim code myed; do
+  for name in hx micro nvim code myed; do
     printf '#!/bin/sh\necho "$(basename "$0") $*" >> "$(dirname "$0")/editor.log"\n' > "$1/$name"
   done
   chmod +x "$1"/*
@@ -122,6 +122,12 @@ open_with() {
 test_rgf_opens_helix_at_line() {
   open_with hx rgf
   assert_eq "$LOG" "hx src/app.py:12"
+}
+
+test_rgf_opens_micro_at_line() {
+  # micro only reads file:line with its parsecursor option, and +LINE only after the file.
+  open_with micro rgf
+  assert_eq "$LOG" "micro src/app.py +12"
 }
 
 test_rgf_opens_vim_style_editor_at_line() {
