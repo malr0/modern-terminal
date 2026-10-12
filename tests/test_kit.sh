@@ -47,3 +47,15 @@ test_kit_leaves_no_helper_variables() {
   assert_no_shell_errors "$OUT"
   assert_not_contains "$OUT" "LEAKED"
 }
+
+test_kit_is_silent_with_old_fzf_without_zsh_flag() {
+  local home bin; home=$(new_home); bin="$home.bin"
+  mkdir -p "$bin"
+  # fzf before 0.48 has no --zsh option.
+  printf '#!/bin/sh\necho "unknown option: $1" >&2\nexit 2\n' > "$bin/fzf"
+  chmod +x "$bin/fzf"
+  run_kit "$home" 'true' PATH="$bin:$PATH"
+  assert_contains "$OUT" "KIT-DONE"
+  assert_no_shell_errors "$OUT"
+  assert_not_contains "$OUT" "unknown option"
+}

@@ -57,7 +57,10 @@ git -C ~/modern-terminal pull
 
 It adds to your setup and never overwrites a file, so running it again is safe.
 
-1. Installs the tools in the [Brewfile](Brewfile) with `brew bundle`.
+1. Installs the tools in the [Brewfile](Brewfile) with `brew bundle --no-upgrade`.
+   Tools you already have stay at their current version. If one misbehaves with the
+   kit's config, update it with `brew upgrade <name>`. If Ghostty or JetBrains Mono
+   Nerd Font is already installed outside Homebrew, the installer skips it.
 2. Adds two lines to the end of `~/.zshrc`:
    ```sh
    # modern-terminal
