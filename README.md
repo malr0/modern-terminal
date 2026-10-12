@@ -66,6 +66,7 @@ It adds to your setup and never overwrites a file, so running it again is safe.
    # modern-terminal
    source "/Users/you/modern-terminal/zsh/kit.zsh"
    ```
+   The kit keeps aliases, `FZF_*` settings and a prompt you set earlier in `~/.zshrc`.
    Anything you put after these lines overrides the kit.
 3. Adds [git/delta.gitconfig](git/delta.gitconfig) to your global git config with
    `include.path`, so `git diff`, `git log -p` and lazygit use delta. Your name, email
@@ -77,12 +78,16 @@ It adds to your setup and never overwrites a file, so running it again is safe.
    what was `skipped (exists)`.
 
 `kit.zsh` sets `EDITOR` to Helix only if you haven't set an editor yourself.
+`rgf` and `ff` open files in `$EDITOR`.
 
 ## Oh My Zsh and other prompt setups
 
-If you use Oh My Zsh, Prezto or Powerlevel10k, you may see two prompts or plugins
-loading twice. In Oh My Zsh, set `ZSH_THEME=""` so starship is the only prompt, and remove
-`zsh-autosuggestions` and `zsh-syntax-highlighting` from your `plugins=(...)` list.
+If you use an Oh My Zsh theme or Powerlevel10k, the kit keeps your prompt and doesn't
+start starship. To switch to starship, set `ZSH_THEME=""` or remove Powerlevel10k.
+With Prezto you may see two prompts: turn off its prompt module to use starship.
+
+If Oh My Zsh also loads `zsh-autosuggestions` or `zsh-syntax-highlighting`, remove them
+from your `plugins=(...)` list so they don't load twice.
 
 ## Uninstall
 
