@@ -76,7 +76,9 @@ _mt_edit() {
     return
   fi
   case "${editor[1]:t}" in
-    hx|helix|micro|zed|subl) "${editor[@]}" "$1:$2" ;;
+    hx|helix|zed|subl) "${editor[@]}" "$1:$2" ;;
+    # micro reads file:line only with its parsecursor option, and +LINE only after the file.
+    micro) "${editor[@]}" "$1" "+$2" ;;
     vi|vim|nvim|nano|emacs|emacsclient|kak) "${editor[@]}" "+$2" "$1" ;;
     code|code-insiders|cursor|windsurf) "${editor[@]}" -g "$1:$2" ;;
     *) "${editor[@]}" "$1" ;;
