@@ -43,12 +43,13 @@ LIST
 # run_kit <home> <zsh commands> [VAR=value...]
 # Sources zsh/kit.zsh in an interactive zsh (no rc files) on a pseudo-terminal,
 # then runs <zsh commands>. Extra VAR=value arguments override the environment.
+# KIT_BEFORE: zsh commands to run before the kit, like earlier lines in ~/.zshrc.
 run_kit() {
   local home="$1" cmds="$2"
   shift 2
   OUT="$home.kit.out"
   script -q "$OUT" env -i HOME="$home" PATH="$PATH" TERM=xterm-256color "$@" \
-    zsh -f -i -c "source \"$REPO_DIR/zsh/kit.zsh\"; $cmds; print -r -- KIT-DONE" \
+    zsh -f -i -c "${KIT_BEFORE:-true}; source \"$REPO_DIR/zsh/kit.zsh\"; $cmds; print -r -- KIT-DONE" \
     </dev/null >/dev/null 2>&1
 }
 

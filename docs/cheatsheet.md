@@ -18,8 +18,8 @@
 |---|---|
 | `Ctrl+R` | Fuzzy-search your shell history |
 | `Ctrl+T` | Fuzzy-find a file and insert its path |
-| `ff [name]` | Fuzzy-find a file by name, preview it, open it in Helix |
-| `rgf [text]` | Live search file contents, preview the match, open Helix at that line |
+| `ff [name]` | Fuzzy-find a file by name, preview it, open it in your editor |
+| `rgf [text]` | Live search file contents, preview the match, open your editor at that line |
 | `rg text` | Search file contents (respects .gitignore) |
 | `fd name` | Find files by name |
 | `sd 'old' 'new' file` | Find and replace in files |
