@@ -72,7 +72,9 @@
     "color": "#7aa2f7"
   },
   "task": {
-    "color": "#7aa2f7"
+    "color": "#7aa2f7",
+    "ticked": "[✓] ",
+    "unticked": "[ ] "
   },
   "link": {
     "color": "#7aa2f7",
